@@ -1,62 +1,80 @@
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import Subset, DataLoader
 import numpy as np
 
 from src.utils.config_loader import load_config
 
 config = load_config()
 
-def get_data_loaders(mode):
+def get_preprocessed_datasets(mode):
     """
-    Get split datasets for training, validation and testing.
+    Get flattened and split datasets for training, validation and testing.
     :param mode: Workflow of choice, either train or test.
     :return: Train and validation sets for training workflow, otherwise
              return the test set for testing workflow.
     """
-    num_workers = config["DATA"]["NUM_WORKERS"]
-    batch_size = config["DATA"]["BATCH_SIZE"]
-    train_set_filtered, test_set_filtered = filter_numbers_in_data()
-    train_set, validation_set = split_train_and_validation(train_set_filtered, test_set_filtered)
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    validation_loader = DataLoader(validation_set, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-    test_loader = DataLoader(test_set_filtered, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-    if mode == "TRAIN":
-        return train_loader, validation_loader
-    if mode == "TEST":
-        return test_loader
+    if mode == 'TRAIN':
+        return get_preprocessed_training_set(mode)
+    elif mode == 'TEST':
+        return get_preprocessed_test_set(mode)
+    else:
+        raise ValueError(f'Invalid mode: {mode}')
 
-def load_data():
-    """Load train, validation and test MNIST datasets"""
+def get_preprocessed_training_set(mode):
+    train_set, val_set = load_data(mode)
+    train_set, val_set = filter_numbers_in_data(train_set), filter_numbers_in_data(val_set)
+    train_set, val_set = split_train_and_validation(train_set, val_set)
+    x_train, y_train = convert_dataset_to_array(train_set)
+    x_train, y_train = flatten_dataset(x_train), one_hot_encode(y_train)
+    x_val, y_val = convert_dataset_to_array(val_set)
+    x_val, y_val = flatten_dataset(x_val), one_hot_encode(y_val)
+    return x_train, y_train, x_val, y_val
+
+def get_preprocessed_test_set(mode):
+    test_set = load_data(mode)
+    test_set = filter_numbers_in_data(test_set)
+    x_test, y_test = convert_dataset_to_array(test_set)
+    x_test, y_test = flatten_dataset(x_test), one_hot_encode(y_test)
+    return x_test, y_test
+
+def load_data(set_type):
+    """
+    Load train/validation/test MNIST dataset.
+    :param set_type: The type of dataset to load.
+    :return: Training and validation set if type is training, otherwise we return the test set.
+    """
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
     ])
-    full_train_dataset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
-    full_validation_dataset = datasets.MNIST(root="./data", train=False, download=True, transform=transform)
-    full_test_dataset = datasets.MNIST(root="./data", train=False, download=True, transform=transform)
-    return full_train_dataset, full_validation_dataset, full_test_dataset
+    if set_type == 'TRAIN':
+        full_train_dataset = datasets.MNIST(root="../data", train=True, download=True, transform=transform)
+        full_validation_dataset = datasets.MNIST(root="../data", train=True, download=True, transform=transform)
+        return full_train_dataset, full_validation_dataset
+    elif set_type == 'TEST':
+        full_test_dataset = datasets.MNIST(root="../data", train=False, download=True, transform=transform)
+        return full_test_dataset
+    else:
+        raise ValueError(f'Invalid set type: {set_type}')
 
-def filter_numbers_in_data():
+def filter_numbers_in_data(dataset):
     """
     Remove certain numbers from the MNIST dataset.
-    :return: Train, validation and test sets.
+    :return: dataset
     """
     numbers_to_keep = config["DATA"]["NUMBERS_TO_KEEP"]
+    MAX_NUMBER_OF_CLASSES = 10
 
     if type(numbers_to_keep) != list:
         raise TypeError('numbers_to_keep should be a list')
 
-    full_train, full_validation, full_test = load_data()
-    if numbers_to_keep is not None:
-        return full_train, full_validation, full_test
+    if len(numbers_to_keep) == MAX_NUMBER_OF_CLASSES:
+        return
 
-    train_indices = [i for i, label in enumerate(full_train.targets) if label in numbers_to_keep]
-    test_indices = [i for i, label in enumerate(full_test.targets) if label in numbers_to_keep]
+    dataset_indices = [i for i, num in enumerate(dataset.targets) if num in numbers_to_keep]
+    filtered_dataset = Subset(dataset, dataset_indices)
 
-    train_dataset_filtered = Subset(full_train, train_indices)
-    test_dataset_filtered = Subset(full_test, test_indices)
-
-    return train_dataset_filtered, test_dataset_filtered
+    return filtered_dataset
 
 def split_train_and_validation(train_set, validation_set):
     """
@@ -75,3 +93,26 @@ def split_train_and_validation(train_set, validation_set):
     train_set = Subset(train_set, train_indices)
     validation_set = Subset(validation_set, validation_indices)
     return train_set, validation_set
+
+def convert_dataset_to_array(dataset):
+    """
+    Convert PyTorch dataset to numpy arrays.
+    :param dataset: PyTorch dataset.
+    :return: Numpy arrays of the images and labels
+    """
+    dataset_loader = DataLoader(dataset, batch_size=len(dataset), shuffle=False)
+    x_set, y_set = next(iter(dataset_loader))
+    x_set_array = x_set.squeeze(1).numpy()
+    y_set_array = y_set.numpy()
+    return x_set_array, y_set_array
+
+def flatten_dataset(dataset):
+    """Convert dataset into 1D array"""
+    return dataset.reshape(dataset.shape[0], -1)
+
+def one_hot_encode(labels):
+    """One hot encode labels by class"""
+    numbers_to_keep = config["DATA"]["NUMBERS_TO_KEEP"]
+    total_classes = len(numbers_to_keep)
+    labels_one_hot = np.eye(total_classes)[labels]
+    return labels_one_hot
