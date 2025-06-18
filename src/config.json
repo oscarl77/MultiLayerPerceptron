@@ -1,0 +1,8 @@
+{
+  "DATA": {
+    "VALIDATION_SPLIT": 0.1,
+    "NUMBERS_TO_KEEP": [0,1,2],
+    "NUM_WORKERS": 0,
+    "BATCH_SIZE": 32
+  }
+}
