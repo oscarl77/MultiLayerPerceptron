@@ -2,7 +2,24 @@
   "DATA": {
     "VALIDATION_SPLIT": 0.1,
     "NUMBERS_TO_KEEP": [0,1,2],
-    "NUM_WORKERS": 0,
     "BATCH_SIZE": 32
+  },
+
+  "HYPERPARAMETERS": {
+    "HIDDEN_LAYERS": [16, 16],
+    "HIDDEN_ACTIVATION": "ReLU",
+    "OUTPUT_ACTIVATION": "Softmax",
+    "INIT_STRATEGY": "kaiming"
+  },
+
+  "INIT_STRATEGIES": {
+    "RANDOM_UNIFORM": "random_uniform",
+    "XAVIER_UNIFORM": "xavier_uniform",
+    "KAIMING": "kaiming"
+  },
+
+  "ACTIVATIONS": {
+    "RELU": "Relu",
+    "SOFTMAX": "softmax"
   }
 }
