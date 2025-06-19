@@ -1,9 +1,15 @@
+import random
+import numpy as np
+
+from src.utils.config_loader import load_config
 from src.model import MultiLayerPerceptron
 from src.data_tools.process_dataset import get_preprocessed_datasets
 from src.utils.parameter_loader import load_model_hyperparams, load_training_hyperparams
 from src.scripts.train_one_epoch import train_one_epoch
 
+
 def train():
+    set_seed()
     x_train, y_train, x_val, y_val = get_preprocessed_datasets(mode="TRAIN")
     (n, d) = x_train.shape
     (n, c) = y_train.shape
@@ -17,6 +23,11 @@ def train():
     for epoch in range(epochs):
         train_one_epoch(model, x_train, y_train, batch_size)
 
+def set_seed():
+    config  = load_config()
+    seed = config["HYPERPARAMETERS"]["RANDOM_SEED"]
+    random.seed(seed)
+    np.random.seed(seed)
 
 if __name__ == '__main__':
     train()
