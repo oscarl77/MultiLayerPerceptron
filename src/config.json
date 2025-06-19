@@ -6,6 +6,8 @@
   },
 
   "HYPERPARAMETERS": {
+    "EPOCHS": 1,
+    "BATCH_SIZE": 32,
     "HIDDEN_LAYERS": [16, 16],
     "HIDDEN_ACTIVATION": "ReLU",
     "OUTPUT_ACTIVATION": "Softmax",
