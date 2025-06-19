@@ -1,6 +1,6 @@
 from src.utils.config_loader import load_config
-from src.activations import ACTIVATIONS
-from src.initialisers import INIT_STRATEGIES
+from src.mlp_utils.activations import ACTIVATIONS
+from src.mlp_utils.initialisers import INIT_STRATEGIES
 
 def load_model_hyperparams():
     """Load """
