@@ -46,10 +46,9 @@ def get_preprocessed_datasets(mode):
         raise ValueError(f'Invalid mode: {mode}')
 
 def _get_preprocessed_training_set(mode):
-    VAL_SPLIT = config["DATA"]["VALIDATION_SPLIT"]
-    RANDOM_SEED = config["TRAINING_PARAMS"]["RANDOM_SEED"]
+    VAL_SPLIT = config["DATA_CONFIG"]["VALIDATION_SPLIT"]
+    RANDOM_SEED = config["TRAINING_CONFIG"]["RANDOM_SEED"]
     train_set = load_data(mode)
-    train_set = filter_numbers_in_data(train_set)
     x_train, y_train = convert_dataset_to_array(train_set)
     x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=VAL_SPLIT, random_state=RANDOM_SEED, stratify=y_train)
     x_train, y_train = flatten_dataset(x_train), one_hot_encode(y_train)
@@ -58,7 +57,6 @@ def _get_preprocessed_training_set(mode):
 
 def get_preprocessed_test_set(mode):
     test_set = load_data(mode)
-    test_set = filter_numbers_in_data(test_set)
     x_test, y_test = convert_dataset_to_array(test_set)
     x_test, y_test = flatten_dataset(x_test), one_hot_encode(y_test)
     return x_test, y_test
@@ -82,25 +80,6 @@ def load_data(set_type):
     else:
         raise ValueError(f'Invalid set type: {set_type}')
 
-def filter_numbers_in_data(dataset):
-    """
-    Remove certain numbers from the MNIST dataset.
-    :return: dataset
-    """
-    numbers_to_keep = config["DATA"]["NUMBERS_TO_KEEP"]
-    MAX_NUMBER_OF_CLASSES = 10
-
-    if type(numbers_to_keep) != list:
-        raise TypeError('numbers_to_keep should be a list')
-
-    if len(numbers_to_keep) == MAX_NUMBER_OF_CLASSES:
-        return dataset
-
-    dataset_indices = [i for i, num in enumerate(dataset.targets) if num in numbers_to_keep]
-    filtered_dataset = Subset(dataset, dataset_indices)
-
-    return filtered_dataset
-
 def split_train_and_validation(train_set, validation_set):
     """
     Split train and validation sets according to the validation split ratio.
@@ -108,7 +87,7 @@ def split_train_and_validation(train_set, validation_set):
     :param validation_set: Full validation dataset.
     :return: The split train and validation sets.
     """
-    validation_split = config["DATA"]["VALIDATION_SPLIT"]
+    validation_split = config["DATA_CONFIG"]["VALIDATION_SPLIT"]
     train_size = len(train_set)
     indices = list(range(train_size))
     np.random.shuffle(indices)
@@ -137,7 +116,5 @@ def flatten_dataset(dataset):
 
 def one_hot_encode(labels):
     """One hot encode labels by class"""
-    numbers_to_keep = config["DATA"]["NUMBERS_TO_KEEP"]
-    total_classes = len(numbers_to_keep)
-    labels_one_hot = np.eye(total_classes)[labels]
+    labels_one_hot = np.eye(10)[labels]
     return labels_one_hot
