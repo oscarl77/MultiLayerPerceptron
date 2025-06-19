@@ -20,6 +20,9 @@ class MultiLayerPerceptron:
 
         self._initialise_params(weight_init_strategy)
 
+    def get_parameters(self):
+        return self.parameters
+
     def forward(self, X):
         """
         Forward pass algorithm of the model.
@@ -38,7 +41,7 @@ class MultiLayerPerceptron:
             b_current = self.parameters[f'b{layer_idx}']
 
             # Compute weighted sum (pre-activation)
-            Z_current = A_prev @ W_current.T + b_current
+            Z_current = A_prev @ W_current + b_current
 
             # Apply hidden layer activation function
             A_current = self.hidden_activation_fn(Z_current)
@@ -53,7 +56,7 @@ class MultiLayerPerceptron:
         W_output = self.parameters[f'W{output_layer_idx}']
         b_output = self.parameters[f'b{output_layer_idx}']
 
-        Z_output = A_prev @ W_output.T + b_output
+        Z_output = A_prev @ W_output + b_output
         AL = self.output_activation_fn(Z_output)
 
         cache.append((Z_output, A_prev))
@@ -68,12 +71,12 @@ class MultiLayerPerceptron:
         :param y_batch: true labels from current batch
         :param cache: List of tuples (Z_current, A_prev) of pre activations
         and outputs for each layer.
-        :return: List of gradients for all weights and biases
+        :return: List of gradients for all weights and biases.
         """
         gradients = {}
-        # Gradient of loss w.r.t, output layer's pre-activation
+        # Gradient of loss w.r.t, output layer's pre-activation.
         # As we are using categorical-cross entropy after a softmax activation,
-        # the gradient is simplified
+        # the gradient calculation is simplified.
         dZ_current = AL - y_batch
 
         # Iterate through layers backwards from last to first hidden layer
