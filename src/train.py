@@ -7,7 +7,7 @@ from src.mlp_utils.optimisers import SGDOptimiser
 from src.data_tools.process_dataset import get_preprocessed_datasets
 from src.utils.config_loader import load_config
 from src.utils.parameter_loader import *
-from src.scripts.train_one_epoch import train_one_epoch
+from src.scripts.training_scripts import train_one_epoch, validate_one_epoch
 
 
 def train():
@@ -34,7 +34,10 @@ def train():
 
     # Run training script for the defined number of epochs
     for epoch in range(epochs):
-        train_one_epoch(model, sgd_optimiser, x_train, y_train, batch_size, epoch)
+        train_acc, train_loss = train_one_epoch(model, sgd_optimiser, x_train, y_train, batch_size)
+        val_acc, val_loss = validate_one_epoch(model, x_val, y_val, batch_size)
+
+        print(f"Epoch: {epoch + 1}, Train loss: {train_loss:.4f}, Validation loss: {val_loss:.4f}")
 
 def set_seed(config):
     """
