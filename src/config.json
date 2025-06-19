@@ -1,23 +1,32 @@
 {
-  "DATA": {
-    "VALIDATION_SPLIT": 0.1,
-    "NUMBERS_TO_KEEP": [0,1,2,3,4,5,6,7,8,9],
-    "BATCH_SIZE": 32
+  "TEST_SETTINGS": {
+    "EXPERIMENT_ID": "v0.0.2"
   },
 
-  "OPTIMISER_PARAMS": {
-    "LEARNING_RATE": 0.01,
+  "LOGGING_SETTINGS": {
+    "EXPERIMENT_ID": "v0.0.2",
+    "ENABLE_LOGGING": "True",
+    "BASE_DIR": "../experiments/"
+  },
+
+  "DATA_CONFIG": {
+    "VALIDATION_SPLIT": 0.1,
+    "BATCH_SIZE": 64
+  },
+
+  "OPTIMISER_CONFIG": {
+    "LEARNING_RATE": 0.005,
     "MOMENTUM": 0.9
   },
 
-  "TRAINING_PARAMS": {
-    "RANDOM_SEED": 42,
+  "TRAINING_CONFIG": {
+    "RANDOM_SEED": 10,
     "EPOCHS": 10,
     "BATCH_SIZE": 32
   },
 
-  "MODEL_PARAMS": {
-    "HIDDEN_LAYERS": [16, 16],
+  "MODEL_CONFIG": {
+    "HIDDEN_LAYERS": [32, 32],
     "HIDDEN_ACTIVATION": "ReLU",
     "OUTPUT_ACTIVATION": "Softmax",
     "INIT_STRATEGY": "kaiming"
