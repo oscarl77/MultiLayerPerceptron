@@ -46,11 +46,12 @@ def get_preprocessed_datasets(mode):
         raise ValueError(f'Invalid mode: {mode}')
 
 def _get_preprocessed_training_set(mode):
-    validation_split = config["DATA"]["VALIDATION_SPLIT"]
+    VAL_SPLIT = config["DATA"]["VALIDATION_SPLIT"]
+    RANDOM_SEED = config["HYPERPARAMETERS"]["RANDOM_SEED"]
     train_set, val_set = load_data(mode)
-    train_set = filter_numbers_in_data(train_set)
+    train_set, val_set = filter_numbers_in_data(train_set), filter_numbers_in_data(val_set)
     x_train, y_train = convert_dataset_to_array(train_set)
-    x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=validation_split, random_state=42, stratify=y_train)
+    x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=VAL_SPLIT, random_state=RANDOM_SEED, stratify=y_train)
     x_train, y_train = flatten_dataset(x_train), one_hot_encode(y_train)
     x_val, y_val = flatten_dataset(x_val), one_hot_encode(y_val)
     return x_train, y_train, x_val, y_val
