@@ -21,6 +21,10 @@ def train_one_epoch(model, x_train, y_train, batch_size):
         # Compute training accuracy
         correct_train_predictions += compute_training_accuracy(predictions, y_batch)
 
+        # Backward pass
+        gradients = model.backward(x_batch, y_batch, cache)
+
+
     train_accuracy = correct_train_predictions / num_train_samples_in_epoch * 100
     avg_train_loss = epoch_train_loss / num_train_samples_in_epoch
     print(f"Train Loss: {avg_train_loss:.4f}, Train Acc: {train_accuracy:.2f}")
