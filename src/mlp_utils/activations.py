@@ -4,6 +4,12 @@ def ReLU(Z):
     """ReLU activation function"""
     return np.maximum(0, Z)
 
+def d_ReLU(dA, Z):
+    """Derivative of ReLU activation function"""
+    dZ = np.array(dA, copy=True)
+    dZ[Z <= 0] = 0
+    return dZ
+
 def softmax(Z):
     Z_shifted = Z - np.max(Z, axis=1, keepdims=True)
     exp_Z = np.exp(Z_shifted)
@@ -12,6 +18,6 @@ def softmax(Z):
     return A
 
 ACTIVATIONS = {
-    'ReLU': ReLU,
+    'ReLU': [ReLU, d_ReLU],
     'Softmax': softmax
 }
