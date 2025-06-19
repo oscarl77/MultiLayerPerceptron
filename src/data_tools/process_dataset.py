@@ -1,10 +1,35 @@
+import numpy as np
 from torchvision import datasets, transforms
 from torch.utils.data import Subset, DataLoader
-import numpy as np
+from sklearn.model_selection import train_test_split
 
 from src.utils.config_loader import load_config
 
 config = load_config()
+
+def generate_batches(X, y, batch_size, shuffle=True):
+    """
+    Generate mini-batches from given dataset
+    :param X: Feature array
+    :param y: Label array
+    :param batch_size: Size of each mini-batch
+    :param shuffle: Whether to shuffle the data before generating batches
+    :yield: tuple (X_batch, y_batch) of each mini-batch
+    """
+    num_samples = X.shape[0]
+    indices = np.arange(num_samples)
+
+    if shuffle:
+        np.random.shuffle(indices)
+
+    for start_idx in range(0, num_samples, batch_size):
+        end_idx = min(start_idx + batch_size, num_samples)
+        batch_indices = indices[start_idx:end_idx]
+
+        X_batch = X[batch_indices]
+        y_batch = y[batch_indices]
+        yield X_batch, y_batch
+
 
 def get_preprocessed_datasets(mode):
     """
@@ -14,11 +39,21 @@ def get_preprocessed_datasets(mode):
              return the test set for testing workflow.
     """
     if mode == 'TRAIN':
-        return get_preprocessed_training_set(mode)
+        return _get_preprocessed_training_set(mode)
     elif mode == 'TEST':
         return get_preprocessed_test_set(mode)
     else:
         raise ValueError(f'Invalid mode: {mode}')
+
+def _get_preprocessed_training_set(mode):
+    validation_split = config["DATA"]["VALIDATION_SPLIT"]
+    train_set, val_set = load_data(mode)
+    train_set = filter_numbers_in_data(train_set)
+    x_train, y_train = convert_dataset_to_array(train_set)
+    x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=validation_split, random_state=42, stratify=y_train)
+    x_train, y_train = flatten_dataset(x_train), one_hot_encode(y_train)
+    x_val, y_val = flatten_dataset(x_val), one_hot_encode(y_val)
+    return x_train, y_train, x_val, y_val
 
 def get_preprocessed_training_set(mode):
     train_set, val_set = load_data(mode)
