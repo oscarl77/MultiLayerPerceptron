@@ -48,21 +48,11 @@ def get_preprocessed_datasets(mode):
 def _get_preprocessed_training_set(mode):
     VAL_SPLIT = config["DATA"]["VALIDATION_SPLIT"]
     RANDOM_SEED = config["TRAINING_PARAMS"]["RANDOM_SEED"]
-    train_set, val_set = load_data(mode)
-    train_set, val_set = filter_numbers_in_data(train_set), filter_numbers_in_data(val_set)
+    train_set = load_data(mode)
+    train_set = filter_numbers_in_data(train_set)
     x_train, y_train = convert_dataset_to_array(train_set)
     x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=VAL_SPLIT, random_state=RANDOM_SEED, stratify=y_train)
     x_train, y_train = flatten_dataset(x_train), one_hot_encode(y_train)
-    x_val, y_val = flatten_dataset(x_val), one_hot_encode(y_val)
-    return x_train, y_train, x_val, y_val
-
-def get_preprocessed_training_set(mode):
-    train_set, val_set = load_data(mode)
-    train_set, val_set = filter_numbers_in_data(train_set), filter_numbers_in_data(val_set)
-    train_set, val_set = split_train_and_validation(train_set, val_set)
-    x_train, y_train = convert_dataset_to_array(train_set)
-    x_train, y_train = flatten_dataset(x_train), one_hot_encode(y_train)
-    x_val, y_val = convert_dataset_to_array(val_set)
     x_val, y_val = flatten_dataset(x_val), one_hot_encode(y_val)
     return x_train, y_train, x_val, y_val
 
@@ -85,8 +75,7 @@ def load_data(set_type):
     ])
     if set_type == 'TRAIN':
         full_train_dataset = datasets.MNIST(root="../data", train=True, download=True, transform=transform)
-        full_validation_dataset = datasets.MNIST(root="../data", train=True, download=True, transform=transform)
-        return full_train_dataset, full_validation_dataset
+        return full_train_dataset
     elif set_type == 'TEST':
         full_test_dataset = datasets.MNIST(root="../data", train=False, download=True, transform=transform)
         return full_test_dataset
