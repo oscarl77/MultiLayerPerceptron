@@ -12,3 +12,10 @@ def load_model_hyperparams():
     output_activation = ACTIVATIONS[params["OUTPUT_ACTIVATION"]]
     return hidden_layers, hidden_activation, output_activation, init_func
 
+def load_training_hyperparams():
+    config = load_config()
+    params = config["HYPERPARAMETERS"]
+    batch_size = params["BATCH_SIZE"]
+    epochs = params["EPOCHS"]
+    return batch_size, epochs
+
