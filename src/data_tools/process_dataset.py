@@ -47,7 +47,7 @@ def get_preprocessed_datasets(mode):
 
 def _get_preprocessed_training_set(mode):
     VAL_SPLIT = config["DATA"]["VALIDATION_SPLIT"]
-    RANDOM_SEED = config["HYPERPARAMETERS"]["RANDOM_SEED"]
+    RANDOM_SEED = config["TRAINING_PARAMS"]["RANDOM_SEED"]
     train_set, val_set = load_data(mode)
     train_set, val_set = filter_numbers_in_data(train_set), filter_numbers_in_data(val_set)
     x_train, y_train = convert_dataset_to_array(train_set)
@@ -105,7 +105,7 @@ def filter_numbers_in_data(dataset):
         raise TypeError('numbers_to_keep should be a list')
 
     if len(numbers_to_keep) == MAX_NUMBER_OF_CLASSES:
-        return
+        return dataset
 
     dataset_indices = [i for i, num in enumerate(dataset.targets) if num in numbers_to_keep]
     filtered_dataset = Subset(dataset, dataset_indices)
