@@ -15,13 +15,22 @@ class MultiLayerPerceptron:
         # store number of dimensions per layer and number of layers
         self.layer_dims = [self.input_dim] + hidden_layers_config + [output_dim]
         self.num_layers = len(self.layer_dims) - 1
-
         self.parameters = {} # dictionary to store weights and biases per layer
+        self.mode = None
 
         self._initialise_params(weight_init_strategy)
 
+    def train(self):
+        self.mode = 'train'
+
+    def eval(self):
+        self.mode = 'eval'
+
     def get_parameters(self):
         return self.parameters
+
+    def set_parameters(self, params_dict):
+        self.parameters = params_dict
 
     def forward(self, X):
         """
@@ -61,7 +70,10 @@ class MultiLayerPerceptron:
 
         cache.append((Z_output, A_prev))
 
-        return AL, cache
+        if self.mode == 'train':
+            return AL, cache
+        elif self.mode == 'eval':
+            return AL
 
     def backward(self, AL, y_batch, cache):
         """
