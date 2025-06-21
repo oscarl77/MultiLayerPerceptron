@@ -2,8 +2,15 @@ import numpy as np
 
 from src.data_tools.process_dataset import generate_batches
 
-
 def test_model(model, x_test, y_test, batch_size):
+    """
+    Run script to test the model
+    :param model: The trained model.
+    :param x_test: Array of test examples.
+    :param y_test: Array of test labels.
+    :param batch_size: Size of the batches to be fed into model.
+    :return: The overall accuracy of the model on the test set.
+    """
     model.eval()
     total_correct = 0
     total_samples = 0
