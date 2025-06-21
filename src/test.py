@@ -31,9 +31,11 @@ def test():
 
     test_accuracy = test_model(model, x_test, y_test, batch_size)
 
-    print(f'Model ID: {EXPERIMENT_ID}')
-    print('Dataset: MNIST')
-    print(f'Test accuracy: {test_accuracy:.2f}%')
+    print(f"""
+    Model ID: {EXPERIMENT_ID}
+    Dataset: MNIST
+    Test accuracy: {test_accuracy:.2f}%
+    """)
 
 
 def set_seed(config):

@@ -1,9 +1,16 @@
-import numpy as np
-
 from src.data_tools.process_dataset import generate_batches
 from src.mlp_utils.loss_fns import cross_entropy_loss
 
 def train_one_epoch(model, optimiser, x_train, y_train, batch_size):
+    """
+    Script to train the model per epoch.
+    :param model: The model to be trained.
+    :param optimiser: The optimiser of choice.
+    :param x_train: Array of training data.
+    :param y_train: Array of training labels.
+    :param batch_size: Size of the batches to be fed into model.
+    :return: The average training loss across all batches.
+    """
     model.train()
     running_loss = 0.0
     total_samples = 0
@@ -33,6 +40,14 @@ def train_one_epoch(model, optimiser, x_train, y_train, batch_size):
 
 
 def validate_one_epoch(model, x_val, y_val, batch_size):
+    """
+    Script to validate the model per epoch.
+    :param model: The model to be validated.
+    :param x_val: Array of validation data.
+    :param y_val: Array of validation labels.
+    :param batch_size: Size of the batches to be fed into model.
+    :return: The average validation loss across all batches.
+    """
     model.eval()
     running_loss = 0.0
     total_samples = 0

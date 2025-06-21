@@ -103,7 +103,7 @@ class MultiLayerPerceptron:
             gradients[f'W{layer_idx}'] = dW
             gradients[f'b{layer_idx}'] = db
 
-            # if not the first layer, calculate
+            # if not the first layer, calculate the current dZ
             if layer_idx > 1:
                 Z_prev = cache[cache_idx - 1][0]
                 dZ_current = self.d_hidden_activation_fn(dA_prev, Z_prev)
