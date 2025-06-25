@@ -14,8 +14,6 @@ def train_one_epoch(model, optimiser, x_train, y_train, batch_size):
     model.train()
     running_loss = 0.0
     total_samples = 0
-    #params = model.get_parameters()
-    #print(f"OLD: {params['W1'][0][0]}")
 
     for x_batch, y_batch in generate_batches(x_train, y_train, batch_size=batch_size, shuffle=False):
         n = x_batch.shape[0]
@@ -37,7 +35,6 @@ def train_one_epoch(model, optimiser, x_train, y_train, batch_size):
         optimiser.step(parameters, gradients)
 
         total_samples += n
-    #print(f"OLD: {parameters['W1'][0][0]}")
 
     avg_train_loss = running_loss / total_samples
 
@@ -77,8 +74,6 @@ def train_one_epoch2(model, optimiser, loss_fn, x_train, y_train, batch_size):
     model.train()
     running_loss = 0.0
     total_samples = 0
-    #params = model.get_parameters()
-    #print(f"NEW: {params['W1'][0][0]}")
 
     for x_batch, y_batch in generate_batches(x_train, y_train, batch_size=batch_size, shuffle=False):
         n = x_batch.shape[0]
@@ -97,8 +92,6 @@ def train_one_epoch2(model, optimiser, loss_fn, x_train, y_train, batch_size):
         model.set_parameters(parameters)
 
         total_samples += n
-    #print(f"NEW: {parameters['W1'][0][0]}")
-    #print(" ")
 
     avg_train_loss = running_loss / total_samples
 
