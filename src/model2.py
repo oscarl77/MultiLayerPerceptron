@@ -9,27 +9,29 @@ class MultiLayerPerceptron2:
         self.layers = self.build_layers()
         self.mode = None
         self.parameters = {}
-        self.set_params_in_layers()
+        self.set_initialised_params()
 
     def set_parameters(self, parameters):
         self.parameters = parameters
-        self.set_params_in_layers()
+        self.set_parameters_in_layers()
 
     def get_parameters(self):
         return self.parameters
 
-    def set_params_in_layers(self):
+    def set_parameters_in_layers(self):
+        for i, layer in enumerate(self.layers):
+            layer_idx = i + 1
+            layer.set_params(self.parameters[f'W{layer_idx}'], self.parameters[f'b{layer_idx}'])
+
+    def set_initialised_params(self):
         for i, layer in enumerate(self.layers):
             layer_idx = i + 1
             W, b = layer.get_params()
             self.parameters[f'W{layer_idx}'] = W
             self.parameters[f'b{layer_idx}'] = b
 
-
     def forward(self, X):
-        for i, layer in enumerate(self.layers):
-            layer_idx = i + 1
-            layer.set_params(self.parameters[f'W{layer_idx}'], self.parameters[f'b{layer_idx}'])
+        for layer in self.layers:
             X = layer.forward(X)
         return X
 
