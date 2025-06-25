@@ -32,9 +32,10 @@ def test():
     trained_parameters1 = load_trained_parameters("vOLD")
     trained_parameters2 = load_trained_parameters("vNEW")
 
+    # Todo: fix backpropagation, as params from 2nd layer onwards are incorrect
+
     model1.set_parameters(trained_parameters1)
     model2.set_parameters(trained_parameters2)
-    #print(f"OLD: {trained_parameters1['W1'][0][0]}\nNEW: {trained_parameters2['W1'][0][0]}")
 
     test_accuracy1 = test_model(model1, x_test, y_test, batch_size)
     test_accuracy2 = test_model(model2, x_test, y_test, batch_size)
