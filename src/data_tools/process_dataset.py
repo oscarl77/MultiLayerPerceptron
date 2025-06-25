@@ -1,7 +1,8 @@
+import joblib
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from torchvision import datasets, transforms
-from torch.utils.data import Subset, DataLoader
+from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 
 from src.utils.config_loader import load_config
@@ -39,16 +40,14 @@ def get_preprocessed_datasets(mode):
     :return: Train and validation sets for training workflow, otherwise
              return the test set for testing workflow.
     """
-    scaler = StandardScaler()
     if mode == 'TRAIN':
         return _get_preprocessed_training_set(mode)
     elif mode == 'TEST':
-        _get_preprocessed_training_set("TRAIN", scaler)
-        return get_preprocessed_test_set(mode, scaler)
+        return get_preprocessed_test_set(mode)
     else:
         raise ValueError(f'Invalid mode: {mode}')
 
-def _get_preprocessed_training_set(mode, scaler=None):
+def _get_preprocessed_training_set(mode):
     VAL_SPLIT = config["DATA_CONFIG"]["VALIDATION_SPLIT"]
     RANDOM_SEED = config["TRAINING_CONFIG"]["RANDOM_SEED"]
     train_set = load_data(mode)
@@ -57,16 +56,24 @@ def _get_preprocessed_training_set(mode, scaler=None):
     x_train, y_train = flatten_dataset(x_train), one_hot_encode(y_train)
     x_val, y_val = flatten_dataset(x_val), one_hot_encode(y_val)
 
+    scaler = StandardScaler()
     scaler.fit(x_train)
     x_train, x_val = scaler.transform(x_train), scaler.transform(x_val)
 
+    scaler_filename = 'scaler.gz'
+    joblib.dump(scaler, scaler_filename)
+    print(f"Scaler saved to {scaler_filename}")
+
     return x_train, y_train, x_val, y_val
 
-def get_preprocessed_test_set(mode, scaler):
+def get_preprocessed_test_set(mode):
+    scaler_filename = 'scaler.gz'
+    loaded_scaler = joblib.load(scaler_filename)
+    print(f"Scaler loaded from {scaler_filename}")
     test_set = load_data(mode)
     x_test, y_test = convert_dataset_to_array(test_set)
     x_test, y_test = flatten_dataset(x_test), one_hot_encode(y_test)
-    x_test = scaler.transform(x_test)
+    x_test = loaded_scaler.transform(x_test)
     return x_test, y_test
 
 def load_data(set_type):
@@ -87,31 +94,13 @@ def load_data(set_type):
     else:
         raise ValueError(f'Invalid set type: {set_type}')
 
-def split_train_and_validation(train_set, validation_set):
-    """
-    Split train and validation sets according to the validation split ratio.
-    :param train_set: Full train dataset.
-    :param validation_set: Full validation dataset.
-    :return: The split train and validation sets.
-    """
-    validation_split = config["DATA_CONFIG"]["VALIDATION_SPLIT"]
-    train_size = len(train_set)
-    indices = list(range(train_size))
-    np.random.shuffle(indices)
-    validation_size = int(validation_split * train_size)
-    train_size = train_size - validation_size
-    train_indices, validation_indices = indices[:train_size], indices[train_size:]
-    train_set = Subset(train_set, train_indices)
-    validation_set = Subset(validation_set, validation_indices)
-    return train_set, validation_set
-
 def convert_dataset_to_array(dataset):
     """
     Convert PyTorch dataset to numpy arrays.
     :param dataset: PyTorch dataset.
     :return: Numpy arrays of the images and labels
     """
-    dataset_loader = DataLoader(dataset, batch_size=len(dataset), shuffle=False)
+    dataset_loader = DataLoader(dataset, batch_size=len(dataset), shuffle=True)
     x_set, y_set = next(iter(dataset_loader))
     x_set_array = x_set.squeeze(1).numpy()
     y_set_array = y_set.numpy()
