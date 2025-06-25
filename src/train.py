@@ -1,6 +1,7 @@
 import random
 
 import numpy as np
+from sympy.printing.pytorch import torch
 
 from src.mlp_utils.loss_fns import CrossEntropyLoss
 from src.model import MultiLayerPerceptron
@@ -46,7 +47,7 @@ def train():
     train_losses, val_losses = [], []
 
     # Define a patience threshold for early stopping
-    patience = 2
+    patience = 10
 
     for epoch in range(epochs):
         #loss = train_one_epoch(model, sgd_optimiser1, x_train, y_train, batch_size)
@@ -58,11 +59,11 @@ def train():
         val_loss = validate_one_epoch2(model2, cross_entropy_loss, x_val, y_val, batch_size)
         val_losses.append(val_loss)
 
-        #if (epoch + 1) % 2 == 0:
-        print(f"Epoch: {epoch + 1}, Train loss: {train_loss:.4f}, Validation loss: {val_loss:.4f}")
+        if (epoch + 1) % 2 == 0:
+            print(f"Epoch: {epoch + 1}, Train loss: {train_loss:.4f}, Validation loss: {val_loss:.4f}")
 
         if val_loss <= train_loss:
-            patience = 3
+            patience = 10
         else:
             patience -= 1
 
@@ -72,20 +73,15 @@ def train():
 
     fig = plot_losses(train_losses, val_losses)
 
-    #params1 = model.get_parameters()
-    #params2 = model2.get_parameters()
-
-    #print(f"OLD: {params1['W1'][0][0]}")
-    #print(f"NEW: {params2['W1'][0][0]}")
-
     enable_logging = config["LOGGING_SETTINGS"]["ENABLE_LOGGING"]
     if enable_logging == "True":
-        log_experiment(model2, fig)
+        log_experiment(model, fig)
 
 
 def set_seed(config):
     """Set fixed random seeds throughout project for training reproducibility."""
     seed = config["TRAINING_CONFIG"]["RANDOM_SEED"]
+    torch.manual_seed(seed)
     random.seed(seed)
     np.random.seed(seed)
 
