@@ -30,9 +30,12 @@ def load_sgd_hyperparams():
     momentum = params["MOMENTUM"]
     return learning_rate, momentum
 
-def load_trained_parameters():
+def load_trained_parameters(name=None):
     """Load trained parameters dict from experiment specified in config file"""
-    NAME = config["TEST_SETTINGS"]["EXPERIMENT_ID"]
+    if name:
+        NAME = name
+    else:
+        NAME = config["TEST_SETTINGS"]["EXPERIMENT_ID"]
     BASE_DIR = config["LOGGING_SETTINGS"]["BASE_DIR"]
     DESTINATION_DIR = os.path.join(BASE_DIR, NAME)
     parameters_filename = 'model.pkl'

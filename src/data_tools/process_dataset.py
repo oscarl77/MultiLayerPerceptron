@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 from torchvision import datasets, transforms
 from torch.utils.data import Subset, DataLoader
 from sklearn.model_selection import train_test_split
@@ -38,14 +39,16 @@ def get_preprocessed_datasets(mode):
     :return: Train and validation sets for training workflow, otherwise
              return the test set for testing workflow.
     """
+    scaler = StandardScaler()
     if mode == 'TRAIN':
         return _get_preprocessed_training_set(mode)
     elif mode == 'TEST':
-        return get_preprocessed_test_set(mode)
+        _get_preprocessed_training_set("TRAIN", scaler)
+        return get_preprocessed_test_set(mode, scaler)
     else:
         raise ValueError(f'Invalid mode: {mode}')
 
-def _get_preprocessed_training_set(mode):
+def _get_preprocessed_training_set(mode, scaler=None):
     VAL_SPLIT = config["DATA_CONFIG"]["VALIDATION_SPLIT"]
     RANDOM_SEED = config["TRAINING_CONFIG"]["RANDOM_SEED"]
     train_set = load_data(mode)
@@ -53,12 +56,17 @@ def _get_preprocessed_training_set(mode):
     x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=VAL_SPLIT, random_state=RANDOM_SEED, stratify=y_train)
     x_train, y_train = flatten_dataset(x_train), one_hot_encode(y_train)
     x_val, y_val = flatten_dataset(x_val), one_hot_encode(y_val)
+
+    scaler.fit(x_train)
+    x_train, x_val = scaler.transform(x_train), scaler.transform(x_val)
+
     return x_train, y_train, x_val, y_val
 
-def get_preprocessed_test_set(mode):
+def get_preprocessed_test_set(mode, scaler):
     test_set = load_data(mode)
     x_test, y_test = convert_dataset_to_array(test_set)
     x_test, y_test = flatten_dataset(x_test), one_hot_encode(y_test)
+    x_test = scaler.transform(x_test)
     return x_test, y_test
 
 def load_data(set_type):
@@ -69,7 +77,6 @@ def load_data(set_type):
     """
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
     ])
     if set_type == 'TRAIN':
         full_train_dataset = datasets.MNIST(root="../data", train=True, download=True, transform=transform)

@@ -2,6 +2,7 @@ import random
 import numpy as np
 
 from src.model import MultiLayerPerceptron
+from src.model2  import MultiLayerPerceptron2
 
 from src.utils.config_loader import load_config
 from src.data_tools.process_dataset import get_preprocessed_datasets
@@ -22,20 +23,33 @@ def test():
     batch_size = config["TRAINING_CONFIG"]["BATCH_SIZE"]
     hidden_layers, hidden_activation, output_activation, init_func = load_model_hyperparams()
 
-    model = MultiLayerPerceptron(input_dim=d, output_dim=c, hidden_layers_config=hidden_layers,
+    model1 = MultiLayerPerceptron(input_dim=d, output_dim=c, hidden_layers_config=hidden_layers,
                                  hidden_activation_fn=hidden_activation, output_activation_fn=output_activation,
                                  weight_init_strategy=init_func)
 
-    trained_parameters = load_trained_parameters()
-    model.set_parameters(trained_parameters)
+    model2 = MultiLayerPerceptron2()
 
-    test_accuracy = test_model(model, x_test, y_test, batch_size)
+    trained_parameters1 = load_trained_parameters("vOLD")
+    trained_parameters2 = load_trained_parameters("vNEW")
+
+    model1.set_parameters(trained_parameters1)
+    model2.set_parameters(trained_parameters2)
+    #print(f"OLD: {trained_parameters1['W1'][0][0]}\nNEW: {trained_parameters2['W1'][0][0]}")
+
+    test_accuracy1 = test_model(model1, x_test, y_test, batch_size)
+    test_accuracy2 = test_model(model2, x_test, y_test, batch_size)
 
     print(f"""
-    Model ID: {EXPERIMENT_ID}
+    Model ID: vOLD
     Dataset: MNIST
-    Test accuracy: {test_accuracy:.2f}%
+    Test accuracy: {test_accuracy1:.2f}%
     """)
+
+    print(f"""
+    Model ID: vNEW
+    Dataset: MNIST
+    Test accuracy: {test_accuracy2:.2f}%
+        """)
 
 
 def set_seed(config):

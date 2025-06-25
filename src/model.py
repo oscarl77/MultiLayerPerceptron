@@ -66,6 +66,7 @@ class MultiLayerPerceptron:
         b_output = self.parameters[f'b{output_layer_idx}']
 
         Z_output = A_prev @ W_output + b_output
+
         AL = self.output_activation_fn(Z_output)
 
         cache.append((Z_output, A_prev))
@@ -148,4 +149,3 @@ class MultiLayerPerceptron:
 
             self.parameters[f'W{layer_idx}'] = W
             self.parameters[f'b{layer_idx}'] = b
-

@@ -14,8 +14,10 @@ def train_one_epoch(model, optimiser, x_train, y_train, batch_size):
     model.train()
     running_loss = 0.0
     total_samples = 0
+    #params = model.get_parameters()
+    #print(f"OLD: {params['W1'][0][0]}")
 
-    for x_batch, y_batch in generate_batches(x_train, y_train, batch_size=batch_size, shuffle=True):
+    for x_batch, y_batch in generate_batches(x_train, y_train, batch_size=batch_size, shuffle=False):
         n = x_batch.shape[0]
 
         # Forward pass
@@ -23,6 +25,7 @@ def train_one_epoch(model, optimiser, x_train, y_train, batch_size):
 
         # Compute cross-entropy loss
         batch_loss = cross_entropy_loss(predictions, y_batch)
+
         running_loss += batch_loss * n
 
         # Backward pass
@@ -30,9 +33,11 @@ def train_one_epoch(model, optimiser, x_train, y_train, batch_size):
 
         # Update model parameters with SGD
         parameters = model.get_parameters()
+
         optimiser.step(parameters, gradients)
 
         total_samples += n
+    #print(f"OLD: {parameters['W1'][0][0]}")
 
     avg_train_loss = running_loss / total_samples
 
@@ -60,6 +65,57 @@ def validate_one_epoch(model, x_val, y_val, batch_size):
 
         # Compute cross-entropy loss
         batch_loss = cross_entropy_loss(predictions, y_batch)
+        running_loss += batch_loss * n
+
+        total_samples += n
+
+    avg_val_loss = running_loss / total_samples
+
+    return avg_val_loss
+
+def train_one_epoch2(model, optimiser, loss_fn, x_train, y_train, batch_size):
+    model.train()
+    running_loss = 0.0
+    total_samples = 0
+    #params = model.get_parameters()
+    #print(f"NEW: {params['W1'][0][0]}")
+
+    for x_batch, y_batch in generate_batches(x_train, y_train, batch_size=batch_size, shuffle=False):
+        n = x_batch.shape[0]
+
+        predictions = model.forward(x_batch)
+
+        batch_loss = loss_fn.forward(predictions, y_batch)
+        dL_dAL = loss_fn.backward()
+        running_loss += batch_loss * n
+
+        gradients = model.backward(dL_dAL)
+
+        parameters = model.get_parameters()
+
+        optimiser.step(parameters, gradients)
+        model.set_parameters(parameters)
+
+        total_samples += n
+    #print(f"NEW: {parameters['W1'][0][0]}")
+    #print(" ")
+
+    avg_train_loss = running_loss / total_samples
+
+    return avg_train_loss
+
+def validate_one_epoch2(model, loss_fn, x_val, y_val, batch_size):
+    model.eval()
+    running_loss = 0.0
+    total_samples = 0
+
+    for x_batch, y_batch in generate_batches(x_val, y_val, batch_size=batch_size, shuffle=True):
+        n = x_batch.shape[0]
+
+        # Forward pass
+        predictions = model.forward(x_batch)
+
+        batch_loss = loss_fn.forward(predictions, y_batch)
         running_loss += batch_loss * n
 
         total_samples += n
