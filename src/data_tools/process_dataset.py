@@ -60,16 +60,14 @@ def _get_preprocessed_training_set(mode):
     scaler.fit(x_train)
     x_train, x_val = scaler.transform(x_train), scaler.transform(x_val)
 
-    scaler_filename = 'scaler.gz'
+    scaler_filename = 'utils/scaler.gz'
     joblib.dump(scaler, scaler_filename)
-    print(f"Scaler saved to {scaler_filename}")
 
     return x_train, y_train, x_val, y_val
 
 def get_preprocessed_test_set(mode):
-    scaler_filename = 'scaler.gz'
+    scaler_filename = 'utils/scaler.gz'
     loaded_scaler = joblib.load(scaler_filename)
-    print(f"Scaler loaded from {scaler_filename}")
     test_set = load_data(mode)
     x_test, y_test = convert_dataset_to_array(test_set)
     x_test, y_test = flatten_dataset(x_test), one_hot_encode(y_test)
