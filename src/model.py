@@ -1,151 +1,98 @@
-import numpy as np
+from src.mlp_utils.layers import DenseLayer
+from src.utils.config_loader import load_config
+from src.mlp_utils.activations import ACTIVATIONS
 
 class MultiLayerPerceptron:
+    """
+    Multi Layer Perceptron (MLP) classifier implemented with numpy.
 
-    def __init__(self, input_dim: int, output_dim: int, hidden_layers_config: list[int],
-                 hidden_activation_fn: callable, output_activation_fn: callable, weight_init_strategy: callable):
+    This class builds a feed-forward neural network trained using Cross-entropy Loss
+    and Stochastic Gradient Descent.
 
-        self.input_dim = input_dim # number of features in input data
-        self.output_dim = output_dim # number of neurons in output layer
-        self.hidden_layers_config = hidden_layers_config # number of neurons per layer
-        self.hidden_activation_fn = hidden_activation_fn[0] # hidden layer activation function
-        self.d_hidden_activation_fn = hidden_activation_fn[1] # hidden layer activation function derivative
-        self.output_activation_fn = output_activation_fn # output layer activation function
+    The network can be configured with a variable number of hyperparameters, e.g.
+    hidden layers, neurons, learning rate via the config file.
 
-        # store number of dimensions per layer and number of layers
-        self.layer_dims = [self.input_dim] + hidden_layers_config + [output_dim]
-        self.num_layers = len(self.layer_dims) - 1
-        self.parameters = {} # dictionary to store weights and biases per layer
+    The model uses ReLU activations for hidden layers and a Softmax activation
+    in the output layer.
+    """
+
+    def __init__(self):
+        self.config = load_config()["NETWORK_CONFIG"]
+        self.layers = self._build_layers()
         self.mode = None
-
-        self._initialise_params(weight_init_strategy)
-
-    def train(self):
-        self.mode = 'train'
-
-    def eval(self):
-        self.mode = 'eval'
+        self.parameters = {}
+        self._set_initialised_params()
 
     def get_parameters(self):
         return self.parameters
 
-    def set_parameters(self, params_dict):
-        self.parameters = params_dict
+    def set_parameters(self, parameters):
+        self.parameters = parameters
+        self._set_parameters_in_layers()
+
+    def train(self):
+        """Set the model to training mode."""
+        self.mode = "TRAIN"
+
+    def eval(self):
+        """set the model to evaluation mode."""
+        self.mode = "EVAL"
 
     def forward(self, X):
         """
-        Forward pass algorithm of the model.
-        :param X: Initial input array
-        :return: Output array of output layer i.e. the predictions.
+        Forward pass through the model's layers.
+        :param X: Input data.
+        :return: Model output.
         """
-        A_prev = X # Initial input
-        cache = [] # Store (Z_current, A_prev) for each layer
+        for layer in self.layers:
+            X = layer.forward(X)
+        return X
 
-        # For all hidden layers
-        for i in range(self.num_layers - 1):
-            layer_idx = i + 1
-
-            # Retrieve current layer weights and biases
-            W_current = self.parameters[f'W{layer_idx}']
-            b_current = self.parameters[f'b{layer_idx}']
-
-            # Compute weighted sum (pre-activation)
-            Z_current = A_prev @ W_current + b_current
-
-            # Apply hidden layer activation function
-            A_current = self.hidden_activation_fn(Z_current)
-
-            # Store current pre-activation and previous output for backward pass
-            cache.append((Z_current, A_prev))
-
-            # Store current output as previous for next layer
-            A_prev = A_current
-
-        output_layer_idx = self.num_layers
-        W_output = self.parameters[f'W{output_layer_idx}']
-        b_output = self.parameters[f'b{output_layer_idx}']
-
-        Z_output = A_prev @ W_output + b_output
-
-        AL = self.output_activation_fn(Z_output)
-
-        cache.append((Z_output, A_prev))
-
-        if self.mode == 'train':
-            return AL, cache
-        elif self.mode == 'eval':
-            return AL
-
-    def backward(self, AL, y_batch, cache):
+    def backward(self, dL_dAL):
         """
-        Algorithm for backward pass of model where all gradients of the loss
-        w.r.t the weights and biases in the network are computed for the current_batch.
-        :param AL: predicted labels array from current batch
-        :param y_batch: true labels from current batch
-        :param cache: List of tuples (Z_current, A_prev) of pre activations
-        and outputs for each layer.
-        :return: List of gradients for all weights and biases.
+        Backward pass through the model's layers.
+        :param dL_dAL: Derivative of Loss w.r.t. model output
+        :return: Dictionary representing the gradients of all n layers' parameters, e.g:
+            {
+                'W1': [gradients], 'b1': [gradients],
+                ...,
+                'Wn: [gradients], 'bn': [gradients]',
+            }
         """
         gradients = {}
-        # Gradient of loss w.r.t, output layer's pre-activation.
-        # As we are using categorical-cross entropy after a softmax activation,
-        # the gradient calculation is simplified.
-        dZ_current = AL - y_batch
-
-        # Iterate through layers backwards from last to first hidden layer
-        for layer_idx in reversed(range(1, self.num_layers + 1)):
-            cache_idx = layer_idx - 1
-
-            Z_current, A_prev = cache[cache_idx]
-            W_current = self.parameters[f'W{layer_idx}']
-
-            dA_prev, dW, db = self._compute_linear_gradients(dZ_current, A_prev, W_current)
-
-            gradients[f'W{layer_idx}'] = dW
-            gradients[f'b{layer_idx}'] = db
-
-            # if not the first layer, calculate the current dZ
-            if layer_idx > 1:
-                Z_prev = cache[cache_idx - 1][0]
-                dZ_current = self.d_hidden_activation_fn(dA_prev, Z_prev)
-
+        dL_dA_prev = dL_dAL
+        layer_idx = len(self.layers)
+        for layer in reversed(self.layers):
+            dL_dA_prev, dL_dW, dL_db = layer.backward(dL_dA_prev, layer_idx)
+            gradients[f'W{layer_idx}'] = dL_dW
+            gradients[f'b{layer_idx}'] = dL_db
+            layer_idx -= 1
         return gradients
 
-    @staticmethod
-    def _compute_linear_gradients(dZ, A_prev, W):
-        """Compute gradients for a linear layer during backpropagation.
-        :param dZ: gradient of the loss w.r.t. the pre-activation of the current layer.
-        :param A_prev: output from the previous layer.
-        :param W: weights of the current layer.
-        :return: tuple (dA_prev, dW, db).
-        """
-        batch_size = dZ.shape[0]
-
-        # compute gradient of loss w.r.t. the weights
-        dW = (A_prev.T @ dZ) / batch_size
-
-        # compute gradient of loss w.r.t the biases
-        db = np.sum(dZ, axis=0, keepdims=True) / batch_size
-
-        # compute gradient of loss w.r.t. output of previous layer
-        dA_prev = dZ @ W.T
-
-        return dA_prev, dW, db
-
-
-    def _initialise_params(self, strategy: callable):
-        """
-        Initialise weight and bias vectors for each layer.
-        :param strategy: weight initialisation function.
-        """
-        init_func = strategy
-        for i in range(self.num_layers):
+    def _set_initialised_params(self):
+        """Store each layer's initialised parameters as a dict in the model."""
+        for i, layer in enumerate(self.layers):
             layer_idx = i + 1
-            input_dim = self.layer_dims[i]
-            output_dim = self.layer_dims[i + 1]
-
-            W = init_func(input_dim, output_dim)
-            b = np.zeros(output_dim)
-
+            W, b = layer.get_params()
             self.parameters[f'W{layer_idx}'] = W
             self.parameters[f'b{layer_idx}'] = b
+
+    def _set_parameters_in_layers(self):
+        """Set each layer's parameters using model's parameter dict."""
+        for i, layer in enumerate(self.layers):
+            layer_idx = i + 1
+            layer.set_params(self.parameters[f'W{layer_idx}'], self.parameters[f'b{layer_idx}'])
+
+    def _build_layers(self):
+        """Builds neural network layers defined in the config file."""
+        layers = []
+        for layer_config in self.config:
+            layer_type = layer_config["TYPE"]
+
+            if layer_type == "DENSE":
+                input_dim = layer_config["INPUT_DIM"]
+                output_dim = layer_config["OUTPUT_DIM"]
+                activation = ACTIVATIONS[layer_config["ACTIVATION"]]()
+                dense_layer = DenseLayer(input_dim, output_dim, activation)
+                layers.append(dense_layer)
+        return layers
