@@ -1,6 +1,6 @@
 {
   "TEST_SETTINGS": {
-    "EXPERIMENT_ID": "vOLD"
+    "EXPERIMENT_ID": "vNEW"
   },
 
   "LOGGING_SETTINGS": {
@@ -20,7 +20,7 @@
 
   "TRAINING_CONFIG": {
     "RANDOM_SEED": 20,
-    "EPOCHS": 10,
+    "EPOCHS": 4,
     "BATCH_SIZE": 32
   },
 
