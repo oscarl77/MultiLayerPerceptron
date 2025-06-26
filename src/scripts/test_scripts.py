@@ -30,6 +30,7 @@ def test_model(model, x_test, y_test, batch_size):
     overall_accuracy = total_correct / total_samples * 100
     return overall_accuracy
 
+
 def compute_accuracy(predictions, y_batch):
     predicted_classes = np.argmax(predictions, axis=1)
     true_classes = np.argmax(y_batch, axis=1)

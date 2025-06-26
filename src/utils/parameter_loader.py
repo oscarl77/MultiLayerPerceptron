@@ -1,20 +1,9 @@
 import os
 import pickle
 
-from src.mlp_utils.activations import ACTIVATIONS
-from src.mlp_utils.initialisers import INIT_STRATEGIES
 from src.utils.config_loader import load_config
 
 config = load_config()
-
-def load_model_hyperparams():
-    """Load model hyperparams from config file"""
-    params = config["MODEL_CONFIG"]
-    hidden_layers = params["HIDDEN_LAYERS"]
-    init_func = INIT_STRATEGIES[params["INIT_STRATEGY"]]
-    hidden_activation = ACTIVATIONS[params["HIDDEN_ACTIVATION"]]
-    output_activation = ACTIVATIONS[params["OUTPUT_ACTIVATION"]]
-    return hidden_layers, hidden_activation, output_activation, init_func
 
 def load_training_hyperparams():
     """Load training hyperparams from config file"""
@@ -30,9 +19,12 @@ def load_sgd_hyperparams():
     momentum = params["MOMENTUM"]
     return learning_rate, momentum
 
-def load_trained_parameters():
+def load_trained_parameters(name=None):
     """Load trained parameters dict from experiment specified in config file"""
-    NAME = config["TEST_SETTINGS"]["EXPERIMENT_ID"]
+    if name:
+        NAME = name
+    else:
+        NAME = config["TEST_SETTINGS"]["EXPERIMENT_ID"]
     BASE_DIR = config["LOGGING_SETTINGS"]["BASE_DIR"]
     DESTINATION_DIR = os.path.join(BASE_DIR, NAME)
     parameters_filename = 'model.pkl'

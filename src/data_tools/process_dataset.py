@@ -1,6 +1,8 @@
+import joblib
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 from torchvision import datasets, transforms
-from torch.utils.data import Subset, DataLoader
+from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 
 from src.utils.config_loader import load_config
@@ -53,12 +55,23 @@ def _get_preprocessed_training_set(mode):
     x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=VAL_SPLIT, random_state=RANDOM_SEED, stratify=y_train)
     x_train, y_train = flatten_dataset(x_train), one_hot_encode(y_train)
     x_val, y_val = flatten_dataset(x_val), one_hot_encode(y_val)
+
+    scaler = StandardScaler()
+    scaler.fit(x_train)
+    x_train, x_val = scaler.transform(x_train), scaler.transform(x_val)
+
+    scaler_filename = 'utils/scaler.gz'
+    joblib.dump(scaler, scaler_filename)
+
     return x_train, y_train, x_val, y_val
 
 def get_preprocessed_test_set(mode):
+    scaler_filename = 'utils/scaler.gz'
+    loaded_scaler = joblib.load(scaler_filename)
     test_set = load_data(mode)
     x_test, y_test = convert_dataset_to_array(test_set)
     x_test, y_test = flatten_dataset(x_test), one_hot_encode(y_test)
+    x_test = loaded_scaler.transform(x_test)
     return x_test, y_test
 
 def load_data(set_type):
@@ -69,7 +82,6 @@ def load_data(set_type):
     """
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
     ])
     if set_type == 'TRAIN':
         full_train_dataset = datasets.MNIST(root="../data", train=True, download=True, transform=transform)
@@ -80,31 +92,13 @@ def load_data(set_type):
     else:
         raise ValueError(f'Invalid set type: {set_type}')
 
-def split_train_and_validation(train_set, validation_set):
-    """
-    Split train and validation sets according to the validation split ratio.
-    :param train_set: Full train dataset.
-    :param validation_set: Full validation dataset.
-    :return: The split train and validation sets.
-    """
-    validation_split = config["DATA_CONFIG"]["VALIDATION_SPLIT"]
-    train_size = len(train_set)
-    indices = list(range(train_size))
-    np.random.shuffle(indices)
-    validation_size = int(validation_split * train_size)
-    train_size = train_size - validation_size
-    train_indices, validation_indices = indices[:train_size], indices[train_size:]
-    train_set = Subset(train_set, train_indices)
-    validation_set = Subset(validation_set, validation_indices)
-    return train_set, validation_set
-
 def convert_dataset_to_array(dataset):
     """
     Convert PyTorch dataset to numpy arrays.
     :param dataset: PyTorch dataset.
     :return: Numpy arrays of the images and labels
     """
-    dataset_loader = DataLoader(dataset, batch_size=len(dataset), shuffle=False)
+    dataset_loader = DataLoader(dataset, batch_size=len(dataset), shuffle=True)
     x_set, y_set = next(iter(dataset_loader))
     x_set_array = x_set.squeeze(1).numpy()
     y_set_array = y_set.numpy()

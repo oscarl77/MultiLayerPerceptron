@@ -1,17 +1,16 @@
 {
   "TEST_SETTINGS": {
-    "EXPERIMENT_ID": "v0.0.3"
+    "EXPERIMENT_ID": "vNEW"
   },
 
   "LOGGING_SETTINGS": {
-    "EXPERIMENT_ID": "v0.0.3",
+    "EXPERIMENT_ID": "vNEW",
     "ENABLE_LOGGING": "True",
     "BASE_DIR": "../experiments/"
   },
 
   "DATA_CONFIG": {
-    "VALIDATION_SPLIT": 0.1,
-    "BATCH_SIZE": 64
+    "VALIDATION_SPLIT": 0.1
   },
 
   "OPTIMISER_CONFIG": {
@@ -20,8 +19,8 @@
   },
 
   "TRAINING_CONFIG": {
-    "RANDOM_SEED": 10,
-    "EPOCHS": 10,
+    "RANDOM_SEED": 20,
+    "EPOCHS": 4,
     "BATCH_SIZE": 32
   },
 
@@ -31,6 +30,27 @@
     "OUTPUT_ACTIVATION": "Softmax",
     "INIT_STRATEGY": "kaiming"
   },
+
+  "NETWORK_CONFIG": [
+    {
+      "TYPE": "DENSE",
+      "INPUT_DIM": 784,
+      "OUTPUT_DIM": 64,
+      "ACTIVATION": "RELU"
+    },
+    {
+      "TYPE": "DENSE",
+      "INPUT_DIM": 64,
+      "OUTPUT_DIM": 32,
+      "ACTIVATION": "RELU"
+    },
+    {
+      "TYPE": "DENSE",
+      "INPUT_DIM": 32,
+      "OUTPUT_DIM": 10,
+      "ACTIVATION": "SOFTMAX"
+    }
+  ],
 
   "INIT_STRATEGIES": {
     "RANDOM_UNIFORM": "random_uniform",
