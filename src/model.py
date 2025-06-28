@@ -1,5 +1,5 @@
-from src.nn.layers import DenseLayer, DropoutLayer, BatchNormLayer, ActivationLayer
-from src.nn.activations import ACTIVATIONS
+from src.nn_components.layers import DenseLayer, DropoutLayer, BatchNormLayer, ActivationLayer
+from src.nn_components.activations import ACTIVATIONS
 from src.utils.config_loader import load_config
 
 class MultiLayerPerceptron:
