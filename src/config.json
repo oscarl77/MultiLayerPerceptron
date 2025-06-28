@@ -1,10 +1,10 @@
 {
   "TEST_SETTINGS": {
-    "EXPERIMENT_ID": "v0.1.6"
+    "EXPERIMENT_ID": "v0.1.7"
   },
 
   "TRAIN_SETTINGS": {
-    "EXPERIMENT_ID": "v0.1.6",
+    "EXPERIMENT_ID": "v0.1.9",
     "ENABLE_LOGGING": "True",
     "BASE_DIR": "../experiments/"
   },
@@ -13,6 +13,11 @@
     "RANDOM_SEED": 20,
     "EPOCHS": 10,
     "BATCH_SIZE": 64
+  },
+
+  "OPTIMISER_CONFIG": {
+    "LEARNING_RATE": 0.005,
+    "MOMENTUM": 0.9
   },
 
   "INIT_CONFIG": "KAIMING",
@@ -27,6 +32,7 @@
       "TYPE": "ACTIVATION",
       "FUNCTION": "RELU"
     },
+
     {
       "TYPE": "DENSE",
       "INPUT_DIM": 64,
@@ -36,6 +42,7 @@
       "TYPE": "ACTIVATION",
       "FUNCTION": "RELU"
     },
+
     {
       "TYPE": "DENSE",
       "INPUT_DIM": 32,
@@ -46,11 +53,6 @@
       "FUNCTION": "SOFTMAX"
     }
   ],
-
-  "OPTIMISER_CONFIG": {
-    "LEARNING_RATE": 0.005,
-    "MOMENTUM": 0.9
-  },
 
   "DATA_CONFIG": {
     "VALIDATION_SPLIT": 0.1

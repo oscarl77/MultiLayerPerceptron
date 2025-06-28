@@ -34,14 +34,14 @@ class MultiLayerPerceptron:
         """Set the model to training mode."""
         self.mode = "TRAIN"
         for layer in self.layers:
-            if isinstance(layer, DropoutLayer):
+            if isinstance(layer, DropoutLayer) or isinstance(layer, BatchNormLayer):
                 layer.training = True
 
     def eval(self):
         """set the model to evaluation mode."""
         self.mode = "EVAL"
         for layer in self.layers:
-            if isinstance(layer, DropoutLayer):
+            if isinstance(layer, DropoutLayer) or isinstance(layer, BatchNormLayer):
                 layer.training = False
 
     def forward(self, X):
@@ -101,14 +101,14 @@ class MultiLayerPerceptron:
             if layer_type == "DENSE":
                 self._add_dense_layer(layer_config, layers)
 
+            if layer_type == "ACTIVATION":
+                self._add_activation_layer(layer_config, layers)
+
             if layer_type == "DROPOUT":
                 self._add_dropout_layer(layer_config, layers)
 
             if layer_type == "BATCHNORM":
                 self._add_batch_norm_layer(layer_config, layers)
-
-            if layer_type == "ACTIVATION":
-                self._add_activation_layer(layer_config, layers)
 
         return layers
 
@@ -123,6 +123,23 @@ class MultiLayerPerceptron:
         output_dim = layer_config["OUTPUT_DIM"]
         dense_layer = DenseLayer(input_dim, output_dim)
         layers.append(dense_layer)
+
+    @staticmethod
+    def _add_activation_layer(layer_config, layers):
+        """
+        Add an activation layer to the model's layers list.
+        :param layer_config: Configuration of the layer.
+        :param layers: List of model's layers.
+        """
+        activation = layer_config["FUNCTION"]
+        if activation == "RELU":
+            activation = ACTIVATIONS["RELU"]()
+            activation_layer = ActivationLayer(activation)
+            layers.append(activation_layer)
+        if activation == "SOFTMAX":
+            activation = ACTIVATIONS["SOFTMAX"]()
+            activation_layer = ActivationLayer(activation)
+            layers.append(activation_layer)
 
     @staticmethod
     def _add_dropout_layer(layer_config, layers):
@@ -145,20 +162,3 @@ class MultiLayerPerceptron:
         input_dim = layer_config["INPUT_DIM"]
         batch_norm_layer = BatchNormLayer(input_dim)
         layers.append(batch_norm_layer)
-
-    @staticmethod
-    def _add_activation_layer(layer_config, layers):
-        """
-        Add an activation layer to the model's layers list.
-        :param layer_config: Configuration of the layer.
-        :param layers: List of model's layers.
-        """
-        activation = layer_config["FUNCTION"]
-        if activation == "RELU":
-            activation = ACTIVATIONS["RELU"]()
-            activation_layer = ActivationLayer(activation)
-            layers.append(activation_layer)
-        if activation == "SOFTMAX":
-            activation = ACTIVATIONS["SOFTMAX"]()
-            activation_layer = ActivationLayer(activation)
-            layers.append(activation_layer)

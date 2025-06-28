@@ -231,7 +231,7 @@ class BatchNormLayer:
 
         # Compute gradients for gamma and beta
         dL_dgamma = np.sum(dL_dA * self.X_normalised, axis=0, keepdims=True)
-        dL_dbeta = np.sum(dL_dA, axis=1, keepdims=True)
+        dL_dbeta = np.sum(dL_dA, axis=0, keepdims=True)
 
         # Compute gradient of loss w.r.t. the normalised input.
         dL_dX_normalised = dL_dA * self.gamma
