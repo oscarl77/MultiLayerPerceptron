@@ -9,10 +9,11 @@ class ReLU:
         """
         ReLU activation function.
         :param Z: Pre-activation vector
-        :return: THe output vector of the activation function.
+        :return: A: The output vector of the activation function.
         """
         self.Z = Z
-        return np.maximum(0, Z)
+        A = np.maximum(0, Z)
+        return A
 
     def backward(self, dL_dA):
         """
@@ -21,7 +22,8 @@ class ReLU:
         :return: Derivative of the loss w.r.t. the pre-activation.
         """
         dA_dZ = np.where(self.Z > 0, 1, 0)
-        return dL_dA * dA_dZ
+        dL_dZ = dL_dA * dA_dZ
+        return dL_dZ
 
 
 class Softmax:

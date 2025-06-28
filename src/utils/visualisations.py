@@ -10,7 +10,7 @@ def plot_losses(train_losses, val_losses):
     :return: The plt figure
     """
     config = load_config()
-    experiment_id = config["LOGGING_SETTINGS"]["EXPERIMENT_ID"]
+    experiment_id = config["TRAIN_SETTINGS"]["EXPERIMENT_ID"]
     epochs = range(len(train_losses))
     fig = plt.figure(figsize=(12, 6))
     plt.suptitle(experiment_id, fontsize=16, fontweight='bold')

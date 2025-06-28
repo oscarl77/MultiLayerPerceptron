@@ -5,8 +5,8 @@ import shutil
 from src.utils.config_loader import load_config
 
 config = load_config()
-NAME = config["LOGGING_SETTINGS"]["EXPERIMENT_ID"]
-BASE_DIR = config["LOGGING_SETTINGS"]["BASE_DIR"]
+NAME = config["TRAIN_SETTINGS"]["EXPERIMENT_ID"]
+BASE_DIR = config["TRAIN_SETTINGS"]["BASE_DIR"]
 DESTINATION_DIR = os.path.join(BASE_DIR, NAME)
 
 def log_experiment(model, fig):
