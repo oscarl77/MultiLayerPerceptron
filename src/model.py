@@ -1,4 +1,4 @@
-from src.mlp_utils.layers import DenseLayer
+from src.mlp_utils.layers import DenseLayer, DropoutLayer
 from src.utils.config_loader import load_config
 from src.mlp_utils.activations import ACTIVATIONS
 
@@ -33,10 +33,16 @@ class MultiLayerPerceptron:
     def train(self):
         """Set the model to training mode."""
         self.mode = "TRAIN"
+        for layer in self.layers:
+            if isinstance(layer, DropoutLayer):
+                layer.enabled = True
 
     def eval(self):
         """set the model to evaluation mode."""
         self.mode = "EVAL"
+        for layer in self.layers:
+            if isinstance(layer, DropoutLayer):
+                layer.enabled = False
 
     def forward(self, X):
         """
@@ -63,7 +69,7 @@ class MultiLayerPerceptron:
         dL_dA_prev = dL_dAL
         layer_idx = len(self.layers)
         for layer in reversed(self.layers):
-            dL_dA_prev, dL_dW, dL_db = layer.backward(dL_dA_prev, layer_idx)
+            dL_dA_prev, dL_dW, dL_db = layer.backward(dL_dA_prev)
             gradients[f'W{layer_idx}'] = dL_dW
             gradients[f'b{layer_idx}'] = dL_db
             layer_idx -= 1
@@ -90,9 +96,33 @@ class MultiLayerPerceptron:
             layer_type = layer_config["TYPE"]
 
             if layer_type == "DENSE":
-                input_dim = layer_config["INPUT_DIM"]
-                output_dim = layer_config["OUTPUT_DIM"]
-                activation = ACTIVATIONS[layer_config["ACTIVATION"]]()
-                dense_layer = DenseLayer(input_dim, output_dim, activation)
-                layers.append(dense_layer)
+                self._add_dense_layer(layer_config, layers)
+
+            if layer_type == "DROPOUT":
+                self._add_dropout_layer(layer_config, layers)
+
         return layers
+
+    @staticmethod
+    def _add_dense_layer(layer_config, layers):
+        """
+        Add a dense layer to the model's layers list.
+        :param layer_config: Configuration of the layer.
+        :param layers: List of model's layers.
+        """
+        input_dim = layer_config["INPUT_DIM"]
+        output_dim = layer_config["OUTPUT_DIM"]
+        activation = ACTIVATIONS[layer_config["ACTIVATION"]]()
+        dense_layer = DenseLayer(input_dim, output_dim, activation)
+        layers.append(dense_layer)
+
+    @staticmethod
+    def _add_dropout_layer(layer_config, layers):
+        """
+        Add a dropout layer to the model's layers list.
+        :param layer_config: Configuration of the layer.
+        :param layers: List of model's layers.
+        """
+        dropout_rate = layer_config["RATE"]
+        dropout_layer = DropoutLayer(dropout_rate)
+        layers.append(dropout_layer)
