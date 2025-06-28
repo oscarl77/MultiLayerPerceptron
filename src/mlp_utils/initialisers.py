@@ -30,7 +30,7 @@ def init_kaiming(input_dim, output_dim):
     return np.random.randn(input_dim, output_dim) * np.sqrt(2. / input_dim)
 
 INIT_STRATEGIES = {
-    'random_uniform': init_random_uniform,
-    'xavier_uniform': init_xavier_uniform,
-    'kaiming': init_kaiming,
+    'RANDOM_UNIFORM': init_random_uniform,
+    'XAVIER_UNIFORM': init_xavier_uniform,
+    'KAIMING': init_kaiming,
 }
