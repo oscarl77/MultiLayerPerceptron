@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.mlp_utils.initialisers import INIT_STRATEGIES
+from src.nn.initialisers import INIT_STRATEGIES
 from src.utils.config_loader import load_config
 
 class DenseLayer:
