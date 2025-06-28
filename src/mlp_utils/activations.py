@@ -5,14 +5,25 @@ class ReLU:
     def __init__(self):
         self.Z = None
 
+    @staticmethod
+    def get_params():
+        """Get method to maintain consistency across layer types."""
+        return None, None
+
+    @staticmethod
+    def set_params(weights, biases):
+        """Set method to maintain consistency across layer types."""
+        pass
+
     def forward(self, Z):
         """
         ReLU activation function.
         :param Z: Pre-activation vector
-        :return: THe output vector of the activation function.
+        :return: A: The output vector of the activation function.
         """
         self.Z = Z
-        return np.maximum(0, Z)
+        A = np.maximum(0, Z)
+        return A
 
     def backward(self, dL_dA):
         """
@@ -25,6 +36,16 @@ class ReLU:
 
 
 class Softmax:
+
+    @staticmethod
+    def get_params():
+        """Get method to maintain consistency across layer types."""
+        return None, None
+
+    @staticmethod
+    def set_params(weights, biases):
+        """Set method to maintain consistency across layer types."""
+        pass
 
     @staticmethod
     def forward(Z):
