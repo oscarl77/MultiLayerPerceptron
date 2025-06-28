@@ -1,4 +1,4 @@
-from src.mlp_utils.layers import DenseLayer, DropoutLayer
+from src.mlp_utils.layers import DenseLayer, DropoutLayer, BatchNormLayer
 from src.utils.config_loader import load_config
 from src.mlp_utils.activations import ACTIVATIONS
 
@@ -35,14 +35,14 @@ class MultiLayerPerceptron:
         self.mode = "TRAIN"
         for layer in self.layers:
             if isinstance(layer, DropoutLayer):
-                layer.enabled = True
+                layer.training = True
 
     def eval(self):
         """set the model to evaluation mode."""
         self.mode = "EVAL"
         for layer in self.layers:
             if isinstance(layer, DropoutLayer):
-                layer.enabled = False
+                layer.training = False
 
     def forward(self, X):
         """
@@ -101,6 +101,9 @@ class MultiLayerPerceptron:
             if layer_type == "DROPOUT":
                 self._add_dropout_layer(layer_config, layers)
 
+            if layer_type == "BATCHNORM":
+                self._add_batch_norm_layer(layer_config, layers)
+
         return layers
 
     @staticmethod
@@ -126,3 +129,14 @@ class MultiLayerPerceptron:
         dropout_rate = layer_config["RATE"]
         dropout_layer = DropoutLayer(dropout_rate)
         layers.append(dropout_layer)
+
+    @staticmethod
+    def _add_batch_norm_layer(layer_config, layers):
+        """
+        Add a batch normalisation layer to the model's layers list.
+        :param layer_config: Configuration of the layer.
+        :param layers: List of model's layers.
+        """
+        input_dim = layer_config["INPUT_DIM"]
+        batch_norm_layer = BatchNormLayer(input_dim)
+        layers.append(batch_norm_layer)
