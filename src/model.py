@@ -1,5 +1,4 @@
-from src.mlp_utils.layers import DenseLayer, DropoutLayer, BatchNormLayer
-from src.mlp_utils.activations import ReLU
+from src.mlp_utils.layers import DenseLayer, DropoutLayer, BatchNormLayer, ActivationLayer
 from src.utils.config_loader import load_config
 from src.mlp_utils.activations import ACTIVATIONS
 
@@ -74,7 +73,7 @@ class MultiLayerPerceptron:
                 dL_dA_prev, dL_dW, dL_db = layer.backward(dL_dA_prev)
                 gradients[f'W{layer_idx}'] = dL_dW
                 gradients[f'b{layer_idx}'] = dL_db
-            if isinstance(layer, ReLU):
+            if isinstance(layer, ActivationLayer):
                 dL_dA_prev = layer.backward(dL_dA_prev)
             layer_idx -= 1
         return gradients
@@ -157,6 +156,9 @@ class MultiLayerPerceptron:
         activation = layer_config["FUNCTION"]
         if activation == "RELU":
             activation = ACTIVATIONS["RELU"]()
+            activation_layer = ActivationLayer(activation)
+            layers.append(activation_layer)
         if activation == "SOFTMAX":
             activation = ACTIVATIONS["SOFTMAX"]()
-        layers.append(activation)
+            activation_layer = ActivationLayer(activation)
+            layers.append(activation_layer)
