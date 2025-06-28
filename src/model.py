@@ -1,4 +1,5 @@
 from src.mlp_utils.layers import DenseLayer, DropoutLayer, BatchNormLayer
+from src.mlp_utils.activations import ReLU
 from src.utils.config_loader import load_config
 from src.mlp_utils.activations import ACTIVATIONS
 
@@ -69,9 +70,12 @@ class MultiLayerPerceptron:
         dL_dA_prev = dL_dAL
         layer_idx = len(self.layers)
         for layer in reversed(self.layers):
-            dL_dA_prev, dL_dW, dL_db = layer.backward(dL_dA_prev)
-            gradients[f'W{layer_idx}'] = dL_dW
-            gradients[f'b{layer_idx}'] = dL_db
+            if isinstance(layer, DenseLayer) or isinstance(layer, BatchNormLayer):
+                dL_dA_prev, dL_dW, dL_db = layer.backward(dL_dA_prev)
+                gradients[f'W{layer_idx}'] = dL_dW
+                gradients[f'b{layer_idx}'] = dL_db
+            if isinstance(layer, ReLU):
+                dL_dA_prev = layer.backward(dL_dA_prev)
             layer_idx -= 1
         return gradients
 
@@ -104,6 +108,9 @@ class MultiLayerPerceptron:
             if layer_type == "BATCHNORM":
                 self._add_batch_norm_layer(layer_config, layers)
 
+            if layer_type == "ACTIVATION":
+                self._add_activation_layer(layer_config, layers)
+
         return layers
 
     @staticmethod
@@ -115,8 +122,7 @@ class MultiLayerPerceptron:
         """
         input_dim = layer_config["INPUT_DIM"]
         output_dim = layer_config["OUTPUT_DIM"]
-        activation = ACTIVATIONS[layer_config["ACTIVATION"]]()
-        dense_layer = DenseLayer(input_dim, output_dim, activation)
+        dense_layer = DenseLayer(input_dim, output_dim)
         layers.append(dense_layer)
 
     @staticmethod
@@ -140,3 +146,17 @@ class MultiLayerPerceptron:
         input_dim = layer_config["INPUT_DIM"]
         batch_norm_layer = BatchNormLayer(input_dim)
         layers.append(batch_norm_layer)
+
+    @staticmethod
+    def _add_activation_layer(layer_config, layers):
+        """
+        Add an activation layer to the model's layers list.
+        :param layer_config: Configuration of the layer.
+        :param layers: List of model's layers.
+        """
+        activation = layer_config["FUNCTION"]
+        if activation == "RELU":
+            activation = ACTIVATIONS["RELU"]()
+        if activation == "SOFTMAX":
+            activation = ACTIVATIONS["SOFTMAX"]()
+        layers.append(activation)
