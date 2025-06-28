@@ -63,6 +63,39 @@ class DenseLayer:
         strategy = config["INIT_CONFIG"]
         return INIT_STRATEGIES[strategy]
 
+
+class ActivationLayer:
+
+    def __init__(self, activation_object):
+        self.activation = activation_object
+
+    @staticmethod
+    def get_params():
+        """Get method to maintain consistency across layer types."""
+        return None, None
+
+    @staticmethod
+    def set_params(weights, biases):
+        """Set method to maintain consistency across layer types."""
+        pass
+
+    def forward(self, X):
+        """
+        Forward pass of the activation layer.
+        :param X: Input vector
+        :return: Activation output vector.
+        """
+        return self.activation.forward(X)
+
+    def backward(self, dL_dA):
+        """
+        Backward pass of the activation layer.
+        :param dL_dA: Gradient of the loss w.r.t. the activation output.
+        :return: dL_dZ: Gradient of the loss w.r.t. the pre-activation.
+        """
+        return self.activation.backward(dL_dA)
+
+
 class DropoutLayer:
 
     def __init__(self, rate):
@@ -123,6 +156,7 @@ class DropoutLayer:
         dL_dA_prev = dL_dA * self.mask
 
         return dL_dA_prev, None, None
+
 
 class BatchNormLayer:
 
