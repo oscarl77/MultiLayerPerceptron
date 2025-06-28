@@ -5,12 +5,16 @@ from src.utils.config_loader import load_config
 
 class DenseLayer:
 
-    def __init__(self, input_dim, output_dim, activation_func):
+    def __init__(self, input_dim, output_dim):
+        """
+        Initialise dropout layer.
+        :param input_dim: Dimension of input.
+        :param output_dim: Dimension of output
+        """
         init_func = self._weight_init()
         self.output_dim = output_dim
         self.weights = init_func(input_dim, output_dim)
         self.biases = np.zeros(output_dim)
-        self.activation_func = activation_func
         self.Z = None
         self.A = None
 
@@ -26,14 +30,25 @@ class DenseLayer:
         self.biases = biases
 
     def forward(self, X):
+        """
+        Forward pass of the layer.
+        :param X: Input vector.
+        :return: Pre-activation vector.
+        """
         self.A_prev = X
         self.Z = X @ self.weights + self.biases
-        self.A = self.activation_func.forward(self.Z)
-        return self.A
+        return self.Z
 
     def backward(self, dL_dA):
+        """
+        Backward pass of the layer and activation function.
+        :param dL_dA: Gradient of the loss w.r.t. the output of the current layer.
+        :return: Tuple containing:
+                    - dL_dA: Gradient of loss w.r.t. output of the current layer.
+                    - dL_dW: Gradient of loss w.r.t. weights of the current layer.
+                    - dL_db: Gradient of loss w.r.t. biases of the current layer.
+        """
         batch_size = dL_dA.shape[0]
-        dL_dA = self.activation_func.backward(dL_dA)
 
         self.dL_dW = self.A_prev.T @ dL_dA / batch_size
         self.dL_db = np.sum(dL_dA, axis=0, keepdims=True) / batch_size
@@ -43,6 +58,7 @@ class DenseLayer:
 
     @staticmethod
     def _weight_init():
+        """Retrieve weight initialiser."""
         config = load_config()
         strategy = config["INIT_CONFIG"]
         return INIT_STRATEGIES[strategy]
