@@ -66,7 +66,7 @@ def train():
     fig = plot_losses(train_losses, val_losses)
 
     # Log experiment details if enabled
-    enable_logging = config["LOGGING_SETTINGS"]["ENABLE_LOGGING"]
+    enable_logging = config["TRAIN_SETTINGS"]["ENABLE_LOGGING"]
     if enable_logging == "True":
         log_experiment(model, fig)
 
