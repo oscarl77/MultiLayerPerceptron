@@ -21,6 +21,7 @@ class SGDOptimiser:
                 self.velocities[param] = np.zeros_like(parameters[param])
 
         for param in parameters.keys():
-            self.velocities[param] = self.momentum * self.velocities[param] + gradients[param]
-            parameters[param] = parameters[param] - self.learning_rate * self.velocities[param]
+            if parameters[param] is not None:
+                self.velocities[param] = self.momentum * self.velocities[param] + gradients[param]
+                parameters[param] = parameters[param] - self.learning_rate * self.velocities[param]
 

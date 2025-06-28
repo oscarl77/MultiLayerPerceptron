@@ -1,35 +1,21 @@
 {
   "TEST_SETTINGS": {
-    "EXPERIMENT_ID": "vNEW"
+    "EXPERIMENT_ID": "v0.1.5"
   },
 
-  "LOGGING_SETTINGS": {
-    "EXPERIMENT_ID": "vNEW",
+  "TRAIN_SETTINGS": {
+    "EXPERIMENT_ID": "v0.1.5",
     "ENABLE_LOGGING": "True",
     "BASE_DIR": "../experiments/"
   },
 
-  "DATA_CONFIG": {
-    "VALIDATION_SPLIT": 0.1
-  },
-
-  "OPTIMISER_CONFIG": {
-    "LEARNING_RATE": 0.005,
-    "MOMENTUM": 0.9
-  },
-
   "TRAINING_CONFIG": {
     "RANDOM_SEED": 20,
-    "EPOCHS": 4,
-    "BATCH_SIZE": 32
+    "EPOCHS": 10,
+    "BATCH_SIZE": 64
   },
 
-  "MODEL_CONFIG": {
-    "HIDDEN_LAYERS": [64, 32],
-    "HIDDEN_ACTIVATION": "ReLU",
-    "OUTPUT_ACTIVATION": "Softmax",
-    "INIT_STRATEGY": "kaiming"
-  },
+  "INIT_CONFIG": "KAIMING",
 
   "NETWORK_CONFIG": [
     {
@@ -52,6 +38,15 @@
     }
   ],
 
+  "OPTIMISER_CONFIG": {
+    "LEARNING_RATE": 0.005,
+    "MOMENTUM": 0.9
+  },
+
+  "DATA_CONFIG": {
+    "VALIDATION_SPLIT": 0.1
+  },
+
   "INIT_STRATEGIES": {
     "RANDOM_UNIFORM": "random_uniform",
     "XAVIER_UNIFORM": "xavier_uniform",
@@ -60,6 +55,6 @@
 
   "ACTIVATIONS": {
     "RELU": "Relu",
-    "SOFTMAX": "softmax"
+    "SOFTMAX": "Softmax"
   }
 }
