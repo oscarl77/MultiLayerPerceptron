@@ -3,9 +3,9 @@ import random
 import numpy as np
 from sympy.printing.pytorch import torch
 
-from src.mlp_utils.loss_fns import CrossEntropyLoss
+from src.nn.loss_fns import CrossEntropyLoss
 from src.model import MultiLayerPerceptron
-from src.mlp_utils.optimisers import SGDOptimiser
+from src.nn.optimisers import SGDOptimiser
 
 from src.utils.config_loader import load_config
 from src.utils.parameter_loader import load_sgd_hyperparams, load_training_hyperparams

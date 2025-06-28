@@ -1,6 +1,6 @@
-from src.mlp_utils.layers import DenseLayer, DropoutLayer, BatchNormLayer, ActivationLayer
+from src.nn.layers import DenseLayer, DropoutLayer, BatchNormLayer, ActivationLayer
+from src.nn.activations import ACTIVATIONS
 from src.utils.config_loader import load_config
-from src.mlp_utils.activations import ACTIVATIONS
 
 class MultiLayerPerceptron:
     """
