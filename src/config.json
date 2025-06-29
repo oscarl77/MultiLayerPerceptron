@@ -1,10 +1,10 @@
 {
   "TEST_SETTINGS": {
-    "EXPERIMENT_ID": "v0.1.7"
+    "EXPERIMENT_ID": "v0.2.0"
   },
 
   "TRAIN_SETTINGS": {
-    "EXPERIMENT_ID": "v0.1.9",
+    "EXPERIMENT_ID": "v0.2.0",
     "ENABLE_LOGGING": "True",
     "BASE_DIR": "../experiments/"
   },

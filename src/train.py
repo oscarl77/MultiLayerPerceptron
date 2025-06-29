@@ -74,9 +74,10 @@ def train():
 def set_seed(config):
     """Set fixed random seeds throughout project for training reproducibility."""
     seed = config["TRAINING_CONFIG"]["RANDOM_SEED"]
-    torch.manual_seed(seed)
-    random.seed(seed)
-    np.random.seed(seed)
+    if seed is not None:
+        torch.manual_seed(seed)
+        random.seed(seed)
+        np.random.seed(seed)
 
 
 if __name__ == '__main__':

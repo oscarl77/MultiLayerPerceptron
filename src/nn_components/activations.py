@@ -18,8 +18,8 @@ class ReLU:
     def backward(self, dL_dA):
         """
         Derivative of the ReLU activation function.
-        :param dL_dA: Derivative of the loss w.r.t. the ReLU output.
-        :return: Derivative of the loss w.r.t. the pre-activation.
+        :param dL_dA: Gradient of the loss w.r.t. the ReLU output.
+        :return: Gradient of the loss w.r.t. the pre-activation.
         """
         dA_dZ = np.where(self.Z > 0, 1, 0)
         dL_dZ = dL_dA * dA_dZ
@@ -45,7 +45,7 @@ class Softmax:
     def backward(dL_dA):
         """
         Derivative of Softmax activation function.
-        :param dL_dA: Derivative of loss w.r.t. the Softmax output.
+        :param dL_dA: Gradient of loss w.r.t. the Softmax output.
         """
         return dL_dA
 

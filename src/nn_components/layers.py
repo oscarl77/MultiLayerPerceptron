@@ -7,7 +7,7 @@ class DenseLayer:
 
     def __init__(self, input_dim, output_dim):
         """
-        Initialise dropout layer.
+        Initialise dense layer.
         :param input_dim: Dimension of input.
         :param output_dim: Dimension of output
         """
@@ -65,8 +65,15 @@ class DenseLayer:
 
 
 class ActivationLayer:
+    """
+    Activation Layer class that allows for wrapping of various activation functions.
+    """
 
     def __init__(self, activation_object):
+        """
+        Initialise activation layer with given activation function.
+        :param activation_object: Given activation function object.
+        """
         self.activation = activation_object
 
     @staticmethod
