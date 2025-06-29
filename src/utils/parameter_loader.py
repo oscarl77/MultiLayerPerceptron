@@ -25,7 +25,7 @@ def load_trained_parameters(name=None):
         NAME = name
     else:
         NAME = config["TEST_SETTINGS"]["EXPERIMENT_ID"]
-    BASE_DIR = config["LOGGING_SETTINGS"]["BASE_DIR"]
+    BASE_DIR = config["TRAIN_SETTINGS"]["BASE_DIR"]
     DESTINATION_DIR = os.path.join(BASE_DIR, NAME)
     parameters_filename = 'model.pkl'
     parameters_filepath = os.path.join(str(DESTINATION_DIR), parameters_filename)
