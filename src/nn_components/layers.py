@@ -41,7 +41,7 @@ class DenseLayer:
 
     def backward(self, dL_dA):
         """
-        Backward pass of the layer and activation function.
+        Backward pass of the layer.
         :param dL_dA: Gradient of the loss w.r.t. the output of the current layer.
         :return: Tuple containing:
                     - dL_dA: Gradient of loss w.r.t. output of the current layer.
