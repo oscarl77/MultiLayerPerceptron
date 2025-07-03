@@ -26,14 +26,21 @@ class DenseLayer:
         return self.weights, self.biases
 
     def set_params(self, weights, biases):
+        """
+        Set the weights and biases for the current layer.
+        :param weights: (D_in, D_out), D_in: no. of input features, D_out: no. of output features.
+        :param biases: (1, D_out)
+        """
         self.weights = weights
         self.biases = biases
 
     def forward(self, X):
         """
         Forward pass of the layer.
-        :param X: Input vector.
-        :return: Pre-activation vector.
+        :param X: Input array.
+           Shape: (N, D_in), N: batch size, D_in: no. of input features.
+        :return: Pre-activation array.
+           Shape: (N, D_out), N: batch size, D_out: no. of output features.
         """
         self.A_prev = X
         self.Z = X @ self.weights + self.biases
@@ -43,16 +50,18 @@ class DenseLayer:
         """
         Backward pass of the layer.
         :param dL_dA: Gradient of the loss w.r.t. the output of the current layer.
+               Shape: (N, D_out), N: batch size, D_out: no. of output features.
         :return: Tuple containing:
                     - dL_dA: Gradient of loss w.r.t. output of the current layer.
                     - dL_dW: Gradient of loss w.r.t. weights of the current layer.
+                        Shape: (D_in, D_out), D_in: no. of input features
                     - dL_db: Gradient of loss w.r.t. biases of the current layer.
+                        Shape: (1, D_out)
         """
         batch_size = dL_dA.shape[0]
 
         self.dL_dW = self.A_prev.T @ dL_dA / batch_size
         self.dL_db = np.sum(dL_dA, axis=0, keepdims=True) / batch_size
-
         dL_dA_prev = dL_dA @ self.weights.T
         return dL_dA_prev, self.dL_dW, self.dL_db
 
